@@ -13,8 +13,5 @@
 .area-label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; color: var(--area); font-weight: 620; }
 .area-dot { background: var(--area); inline-size: 7px; block-size: 7px; flex: none; border-radius: 50%; }
 .area-label small { font-size: .86em; color: var(--muted); font-weight: 500; }
-.area-legend { margin: 0 0 10px; font-size: .78rem; color: var(--muted); }
-.area-legend summary { cursor: pointer; min-height: 35px; align-content: center; width: fit-content; }
-.area-legend ul { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 8px 0; list-style: none; }
 .presentation-card[data-area] { background: var(--area-tint); }
 .presentation-card[data-area]:hover, .presentation-card[data-area]:focus-within { background: color-mix(in srgb, var(--area) 12%, var(--surface)); }

@@ -316,18 +316,25 @@ test('pinça, controles e grade semanal móvel mantêm o zoom na agenda', async 
   }
 })
 
-test('legenda distingue dez áreas em ambos os temas e o filtro pode ser removido', async ({ page }) => {
+test('filtro distingue dez áreas em ambos os temas e pode ser removido', async ({ page }) => {
   await page.goto('./')
-  await page.locator('.area-legend summary').click()
-  const dots = page.locator('.area-legend .area-dot')
+  await expect(page.getByRole('status')).toContainText(countLabel(records.length))
+  await expect(page.getByText('Legenda de áreas', { exact: true })).toHaveCount(0)
+  const area = openFilter(page, 'Área')
+  await area.click()
+  const dots = page.getByRole('dialog', { name: 'Área', exact: true }).locator('.area-dot')
   await expect(dots).toHaveCount(10)
   const colors = () => dots.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundColor))
   const light = await colors()
   expect(new Set(light).size).toBe(10)
+  await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Ativar tema escuro' }).click()
+  await area.click()
+  await expect(dots).toHaveCount(10)
   const dark = await colors()
   expect(new Set(dark).size).toBe(10)
   expect(dark).not.toEqual(light)
+  await page.keyboard.press('Escape')
   await expect(page.locator('.site-header')).not.toContainText('Universidade Federal de Goiás')
   await selectOptions(page, 'Área', ['Engenharias'])
   await page.getByRole('button', { name: 'Remover filtro Engenharias' }).click()

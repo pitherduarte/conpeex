@@ -5,7 +5,6 @@ import { dateLabel, dayNumber, periods, scheduleByTime, shortDateLabel, timePeri
 import type { Period } from '../calendar'
 import type { Presentation } from '../types'
 import { PresentationCard } from './PresentationCard'
-import { AreaLegend } from './AreaLabel'
 import { minutes } from './eventClock'
 import { useCalendarZoom } from './useCalendarZoom'
 import './calendar.css'
@@ -101,7 +100,6 @@ export function Calendar({ days, selected, onDay, period, onPeriod, items, onOpe
       {children}
     </div>
     <div className="calendar-view-tools">
-      <AreaLegend />
       <button type="button" className="pill mobile-view" aria-pressed={showWeek} onClick={() => setShowWeek(value => !value)}>{showWeek ? 'Ver dia' : 'Ver semana'}</button>
       <div className="zoom-controls" role="group" aria-label="Zoom do calendário">
         <button type="button" aria-label="Diminuir zoom" disabled={zoom <= min} onClick={() => change(zoom - .1)}><Minus size={16} /></button>
