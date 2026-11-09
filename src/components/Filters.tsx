@@ -163,7 +163,7 @@ export function Filters({ filters, options, onFilter, onClear, canClear }: Props
       {filterKeys.filter(key => key !== 'knowledgeSubarea' || options[key].length > 0).map(key => {
         const values = filters[key] ?? []
         const open = active === key
-        return <div key={key} className="filter-control">
+        return <div key={key} className="filter-control" data-field={key}>
           <button type="button" className={values.length ? 'filter-pill is-active' : 'filter-pill'}
             ref={node => { if (node) triggers.current[key] = node }}
             aria-label={labels[key]} aria-expanded={open} aria-controls={open ? `filter-options-${key}` : undefined}

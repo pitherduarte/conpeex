@@ -172,6 +172,8 @@ test('mobile mantém cinco dias, períodos e painéis dentro da largura da tela'
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
   await page.goto('./')
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(openFilter(page, 'Dia')).toHaveCount(0)
+  await expect(openFilter(page, 'Mesa / TV')).toBeVisible()
   const dayPicker = page.getByRole('group', { name: 'Escolher dia' })
   await expect(dayPicker.getByRole('button')).toHaveCount(eventDates.length)
   for (const [index, day] of eventDates.entries()) {
