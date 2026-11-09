@@ -11,7 +11,7 @@ import { AreaLabel } from './AreaLabel'
 import './filters.css'
 
 const labels: Record<FilterKey, string> = {
-  knowledgeArea: 'Área', modality: 'Modalidade', session: 'Sessão', table: 'Mesa / TV', date: 'Dia',
+  knowledgeArea: 'Área', knowledgeSubarea: 'Subárea', modality: 'Modalidade', session: 'Sessão', table: 'Mesa / TV', date: 'Dia',
 }
 const collator = new Intl.Collator('pt-BR', { numeric: true })
 
@@ -21,14 +21,15 @@ export function makeOptions(items: Presentation[], days: readonly string[] = [])
     const options = [...values].filter(value => value !== unknown).sort(collator.compare)
     const ordered = key === 'knowledgeArea' ? [...new Set([...areas.filter(area => area.tone !== 'neutra').map(area => area.label), ...options])] : options
     if (key === 'date' && days.length) return [key, [...days]]
-    if (values.has(unknown) || key === 'knowledgeArea') ordered.push(unknown)
+    if (key === 'knowledgeArea' || (key !== 'knowledgeSubarea' && values.has(unknown))) ordered.push(unknown)
     return [key, ordered]
   })) as Record<FilterKey, string[]>
 }
 
 function optionLabel(key: FilterKey, value: string) {
   if (value === unknown) return key === 'knowledgeArea' ? 'Não classificada' : 'Não informado'
-  return key === 'date' ? dateLabel(value) : displayText(value)
+  if (key === 'date') return dateLabel(value)
+  return key === 'knowledgeSubarea' ? value : displayText(value)
 }
 
 export function SearchBox({ value, onChange }: { value: string; onChange: (value: string) => void }) {
@@ -37,7 +38,7 @@ export function SearchBox({ value, onChange }: { value: string; onChange: (value
   return <div className="search-box" role="search">
     <Search size={19} aria-hidden="true" />
     <input ref={input} type="search" value={value} onChange={event => onChange(event.target.value)}
-      aria-label="Pesquisar apresentações" placeholder="Buscar trabalho, autor ou área" />
+      aria-label="Pesquisar apresentações" placeholder="Buscar trabalho, autor, área ou subárea" />
     {value && <button type="button" className="search-clear" aria-label="Limpar pesquisa" onClick={() => {
       onChange('')
       input.current?.focus()
@@ -159,7 +160,7 @@ export function Filters({ filters, options, onFilter, onClear, canClear }: Props
   return <div className="filter-bar" role="group" aria-label="Filtros da programação">
     <span className="filter-label"><SlidersHorizontal size={16} aria-hidden="true" /> Filtros</span>
     <div className="filter-options">
-      {filterKeys.map(key => {
+      {filterKeys.filter(key => key !== 'knowledgeSubarea' || options[key].length > 0).map(key => {
         const values = filters[key] ?? []
         const open = active === key
         return <div key={key} className="filter-control">

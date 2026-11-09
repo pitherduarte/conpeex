@@ -7,6 +7,11 @@ export interface Presentation {
   startTime: string | null
   endTime: string | null
   knowledgeArea: string | null
+  knowledgeField?: string
+  knowledgeSubarea?: string
+  knowledgeSpecialty?: string
+  knowledgeTopic?: string
+  sourceKnowledgeArea?: string
   inferredArea?: boolean
   modality: string | null
   session: string | null

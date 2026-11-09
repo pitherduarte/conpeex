@@ -49,6 +49,10 @@ export function Details({ item, slot, onClose, onBack, onOpen }: {
     [MapPin, 'Mesa / TV', displayText(item.table ?? 'Não informada')],
     [Hash, 'Número do trabalho', item.workNumber ?? 'Não informado'],
     ...(item.location ? [[MapPin, 'Local', displayText(item.location)] as const] : []),
+    ...(item.knowledgeField ? [[Tag, 'Área específica', item.knowledgeField] as const] : []),
+    ...(item.knowledgeSubarea ? [[Tag, 'Subárea', item.knowledgeSubarea] as const] : []),
+    ...(item.knowledgeSpecialty ? [[Tag, 'Especialidade', item.knowledgeSpecialty] as const] : []),
+    ...(item.knowledgeTopic ? [[Tag, 'Tema', item.knowledgeTopic] as const] : []),
   ] as const : []
 
   const slotPeriod = slot && periods.find(period => period.key === timePeriod(slot.time))?.label

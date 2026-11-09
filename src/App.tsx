@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { withReviewedArea } from './areas'
 import { useEventClock } from './components/eventClock'
 import event from './data/event.json'
 import dataUrl from './data/presentations.json?url&no-inline'
@@ -107,7 +106,7 @@ export function App() {
         const response = await fetch(dataUrl, { signal: controller.signal })
         if (!response.ok) throw new Error('Falha ao carregar a programação')
         const records: Presentation[] = await response.json()
-        const eventRecords = records.filter(item => !item.date || eventDaySet.has(item.date)).map(withReviewedArea)
+        const eventRecords = records.filter(item => !item.date || eventDaySet.has(item.date))
         eventRecords.sort((a, b) => (a.date ?? 'Z').localeCompare(b.date ?? 'Z') ||
           (a.startTime ?? 'Z').localeCompare(b.startTime ?? 'Z') || collator.compare(a.table ?? '', b.table ?? ''))
         if (!controller.signal.aborted) setItems(eventRecords)

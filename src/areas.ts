@@ -1,6 +1,3 @@
-import review from './data/area-review.json'
-import type { Presentation } from './types'
-
 export const areas = [
   { label: 'Ciências Exatas e da Terra', tone: 'exatas' },
   { label: 'Engenharias', tone: 'engenharias' },
@@ -14,13 +11,7 @@ export const areas = [
   { label: 'Não classificada', tone: 'neutra' },
 ] as const
 
-const derived: Record<string, { area: string; criterion: string; evidence: string }> = review
 const areaByLabel = new Map<string, typeof areas[number]>(areas.map(area => [area.label, area]))
-
-export function withReviewedArea(item: Presentation): Presentation {
-  const inferred = derived[item.id]
-  return item.knowledgeArea || !inferred ? item : { ...item, knowledgeArea: inferred.area, inferredArea: true }
-}
 
 export function areaInfo(label: string | null) {
   const canonical = label === 'Lingüística, Letras e Artes' ? 'Linguística, Letras e Artes' : label

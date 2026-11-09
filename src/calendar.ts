@@ -51,7 +51,7 @@ export function timePeriod(time: string | null): Exclude<Period, 'all'> | 'unkno
   return 'evening'
 }
 
-export const filterKeys = ['knowledgeArea', 'modality', 'session', 'table', 'date'] as const
+export const filterKeys = ['knowledgeArea', 'knowledgeSubarea', 'modality', 'session', 'table', 'date'] as const
 export type FilterKey = typeof filterKeys[number]
 export type Filters = Partial<Record<FilterKey, string[]>>
 export const unknown = '__unknown__'
@@ -61,7 +61,10 @@ export const filterValue = (item: Presentation, key: FilterKey) => key === 'know
 export function indexPresentations(items: Presentation[]) {
   return items.map(item => ({
     item,
-    text: normalize([item.title, ...item.authors, item.knowledgeArea ?? 'Não classificada', item.modality].join(' ')),
+    text: normalize([
+      item.title, ...item.authors, item.knowledgeArea ?? 'Não classificada', item.modality,
+      item.knowledgeField, item.knowledgeSubarea, item.knowledgeSpecialty, item.knowledgeTopic,
+    ].join(' ')),
   }))
 }
 

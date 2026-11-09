@@ -7,7 +7,7 @@ const records: Presentation[] = JSON.parse(readFileSync(new URL('../src/data/pre
 const eventDates = [9, 10, 11, 12, 13]
 const firstSlot = records.filter(item => item.date === '2026-11-10' && item.startTime === '08:30')
 const title = 'NAPOEC: Núcleo antirracismo na poética cênica'
-const names = ['Área', 'Modalidade', 'Sessão', 'Mesa / TV', 'Dia']
+const names = ['Área', 'Subárea', 'Modalidade', 'Sessão', 'Mesa / TV', 'Dia']
 
 function countLabel(count: number) {
   return count.toLocaleString('pt-BR') + (count === 1 ? ' apresentação encontrada' : ' apresentações encontradas')
@@ -129,7 +129,7 @@ test('busca, filtros próprios e seleção múltipla combinam critérios', async
   const option = page.getByRole('button', { name: /quarta-feira, 11 de novembro de 2026/i, exact: true })
   await option.click()
   await expect(day).toHaveAttribute('aria-expanded', 'false')
-  const expected = records.filter(item => (item.knowledgeArea === 'Lingüística, Letras e Artes' || item.knowledgeArea === 'Engenharias')
+  const expected = records.filter(item => (item.knowledgeArea === 'Linguística, Letras e Artes' || item.knowledgeArea === 'Engenharias')
     && item.modality === 'Mostra da Pós-Graduação Stricto Sensu e Lato Sensu'
     && item.session === 'Sessão 08' && item.table === 'TV 12' && item.date === '2026-11-11')
   expect(expected.length).toBeGreaterThan(0)
@@ -143,6 +143,28 @@ test('busca, filtros próprios e seleção múltipla combinam critérios', async
   await expect(search).toHaveValue('')
   await expect(page.getByRole('status')).toContainText(countLabel(records.length))
   for (const name of names) await expect(openFilter(page, name)).toHaveAttribute('aria-expanded', 'false')
+})
+
+test('a busca por especialidade combina com área e subárea e abre a classificação completa', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 })
+  await page.goto('./')
+  const search = page.getByRole('searchbox', { name: 'Pesquisar apresentações' })
+  await search.fill('engenharia de software')
+  await selectOptions(page, 'Área', ['Ciências Exatas e da Terra'])
+  await selectOptions(page, 'Subárea', ['Metodologia e Técnicas da Computação'], 'metodologia')
+  await expect(page.getByRole('status')).toContainText(countLabel(1))
+  await page.getByRole('button', { name: /panorama de teste de software/i }).click()
+  const dialog = page.locator('dialog[open]')
+  await expect(dialog.locator('.area-label')).toContainText('Ciências Exatas e da Terra')
+  for (const value of [
+    'Ciência da Computação', 'Metodologia e Técnicas da Computação', 'Engenharia de Software',
+  ]) {
+    await expect(dialog.getByText(value, { exact: true })).toBeVisible()
+  }
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Remover filtro Metodologia e Técnicas da Computação' }).click()
+  await selectOptions(page, 'Subárea', ['Teoria da Computação'])
+  await expect(page.getByRole('status')).toContainText(countLabel(0))
 })
 
 test('mobile mantém cinco dias, períodos e painéis dentro da largura da tela', async ({ page }) => {

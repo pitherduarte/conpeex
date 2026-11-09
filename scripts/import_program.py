@@ -154,8 +154,13 @@ def consolidate(base, raw_rows):
             continue
         if candidates:
             entry = next(iter(candidates.values()))
-            conflicts = [field for field in (*FIELDS, 'workId') if field != 'authors' and entry.get(field) and row[field] and
+            conflicts = [field for field in (*FIELDS, 'workId') if field not in ('authors', 'knowledgeArea') and entry.get(field) and row[field] and
                          key(entry[field]) != key(row[field])]
+            if row['knowledgeArea'] and entry.get('knowledgeArea'):
+                known_areas = {key(entry['knowledgeArea']), key(entry.get('sourceKnowledgeArea'))}
+                known_areas = {area.replace('lingüística', 'linguística') for area in known_areas}
+                if key(row['knowledgeArea']).replace('lingüística', 'linguística') not in known_areas:
+                    conflicts.append('knowledgeArea')
             old_names, new_names = names(entry), names(row)
             if not (old_names <= new_names or new_names <= old_names):
                 conflicts.append('authors')

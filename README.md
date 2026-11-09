@@ -8,7 +8,7 @@ A agenda cobre os cinco dias da edição, de 9 a 13 de novembro de 2026. No comp
 
 O tema acompanha a preferência do sistema até que o visitante faça uma escolha no cabeçalho. A busca e os filtros podem ser combinados. A camada de apresentação ajusta a capitalização dos títulos e autores sem alterar os registros. As definições verificadas e as pendências estão no [glossário](docs/glossary.md).
 
-A agenda exibe a hora de Brasília e posiciona o marcador de agora no dia e período visíveis. O zoom da grade aceita pinça no celular, botões e as teclas `+`, `-` e `0` com a grade em foco. A [revisão editorial das áreas](docs/area-review.md) documenta as inferências e o comando para reproduzi-las.
+A agenda exibe a hora de Brasília e posiciona o marcador de agora no dia e período visíveis. O zoom da grade aceita pinça no celular, botões e as teclas `+`, `-` e `0` com a grade em foco. A busca inclui a classificação acadêmica e as etiquetas temáticas disponíveis. A [auditoria das áreas de 2026](docs/area-review.md) documenta os critérios e as decisões por trabalho.
 
 ## Desenvolvimento
 
@@ -32,7 +32,7 @@ Os testes usam o build de produção em `http://127.0.0.1:4173/conpeex/`. A vari
 ## Atualização da programação
 
 - `src/data/event.json` contém nome, edição, instituição, datas e o rótulo de fuso do evento.
-- `src/data/presentations.json` contém os trabalhos publicados. Cada registro tem um ID estável, título, lista de autores, datas ISO e horários de 24 horas. Campos ausentes usam `null` ou uma lista vazia para autores. A origem fica em `sourceFile`, `sourcePage` e `sources`, com planilha e linha quando disponíveis.
+- `src/data/presentations.json` contém os trabalhos publicados. Cada registro tem um ID estável, título, lista de autores, datas ISO e horários de 24 horas. Campos ausentes usam `null` ou uma lista vazia para autores. A origem fica em `sourceFile`, `sourcePage` e `sources`, com planilha e linha quando disponíveis. A hierarquia acadêmica usa `knowledgeArea` e os campos opcionais `knowledgeField`, `knowledgeSubarea` e `knowledgeSpecialty`. `knowledgeTopic` guarda uma etiqueta temática.
 - `scripts/import_program.py` importa os documentos localmente. Guarde as fontes e o relatório de revisão fora do repositório ou em `import-local/`, pasta ignorada pelo Git. Confira se os dados derivados são públicos antes de atualizar o JSON.
 
 Instale as dependências de importação em um ambiente Python separado.
