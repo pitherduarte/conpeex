@@ -1,0 +1,97 @@
+{
+  "CONPEEX": {
+    "name": "Congresso de Pesquisa, Ensino e Extensão",
+    "description": "Evento anual da UFG que reúne trabalhos e atividades das três áreas.",
+    "source": "https://23conpeex.plateia.ufg.br/p/59954-sobre-o-conpeex"
+  },
+  "UFG": {
+    "name": "Universidade Federal de Goiás",
+    "description": "Universidade que realiza o CONPEEX.",
+    "source": "https://23conpeex.plateia.ufg.br/p/59954-sobre-o-conpeex"
+  },
+  "PROBEC": {
+    "name": "Programa de Bolsas de Extensão e Cultura",
+    "description": "Apoia a participação de estudantes de graduação em ações de extensão e cultura.",
+    "source": "https://iac.ufg.br/n/200124-inscricoes-abertas-para-programa-de-bolsas-de-extensao-e-cultura-probec-2026"
+  },
+  "PIP": {
+    "name": "Programa de Iniciação à Pesquisa",
+    "description": "Reúne trabalhos de iniciação científica, tecnológica e científica júnior.",
+    "source": "https://prpi.ufg.br/n/201174-estao-abertas-as-submissoes-para-o-seminario-pip-ufg"
+  },
+  "PROLICEN": {
+    "name": "Programa de Iniciação à Pesquisa dos Cursos de Licenciatura",
+    "description": "Modalidade dedicada a trabalhos dos cursos de licenciatura apresentados no Seminário do PROLICEN.",
+    "source": "https://proex.ufg.br/n/204711-normas-e-templates-de-apresentacao-de-trabalhos-23-conpeex"
+  },
+  "PIBID": {
+    "name": "Programa Institucional de Bolsas de Iniciação à Docência",
+    "description": "Aproxima estudantes de licenciatura da prática docente em escolas parceiras.",
+    "source": "https://prograd.ufg.br/p/20895-formas-de-ingresso"
+  },
+  "PET MEC": {
+    "name": "Programa de Educação Tutorial",
+    "description": "Programa do Ministério da Educação que reúne estudantes de graduação em grupos tutoriais de ensino, pesquisa e extensão.",
+    "source": "https://files.cercomp.ufg.br/weby/up/1/o/SEI_6101251_Edital_209.pdf"
+  },
+  "PET-Saúde": {
+    "name": "Programa de Educação pelo Trabalho para a Saúde",
+    "description": "Nesta modalidade, o congresso reúne trabalhos desenvolvidos em atividades do programa de formação em saúde.",
+    "source": "https://files.cercomp.ufg.br/weby/up/1/o/SEI_6101251_Edital_209.pdf"
+  },
+  "PET": {
+    "name": "Programa de Educação Tutorial",
+    "description": "Reúne estudantes de graduação em grupos orientados por docentes para atividades de ensino, pesquisa e extensão.",
+    "source": "https://prograd.ufg.br/p/7197-o-que-e-o-pet"
+  },
+  "NICEB": {
+    "name": "Núcleo de Iniciação à Pesquisa Científica na Educação Básica",
+    "description": "No congresso, integra a Mostra da Educação Básica com trabalhos de iniciação à pesquisa.",
+    "source": "https://23conpeex.plateia.ufg.br/n/199866-publicado-edital-para-a-submissao-de-trabalhos-cientificos-no-conpeex"
+  },
+  "TCEM": {
+    "name": "Trabalho de Conclusão do Ensino Médio",
+    "description": "Trabalhos de conclusão de estudantes do CEPAE compõem a Mostra da Educação Básica.",
+    "source": "https://files.cercomp.ufg.br/weby/up/1/o/SEI_6101251_Edital_209.pdf"
+  },
+  "TCC": {
+    "name": "Trabalho de Conclusão de Curso",
+    "description": "No congresso, integra a modalidade que reúne trabalhos de conclusão e de estágio.",
+    "source": "https://files.cercomp.ufg.br/weby/up/1/o/SEI_6101251_Edital_209.pdf"
+  },
+  "CEPAE": {
+    "name": "Centro de Ensino e Pesquisa Aplicada à Educação",
+    "description": "Unidade acadêmica da UFG que atua na educação básica e na pós-graduação.",
+    "source": "https://prograd.ufg.br/n/16162-cepae"
+  },
+  "NAPOEC": {
+    "name": "Núcleo Antirracismo na Poética Cênica",
+    "description": "Projeto de extensão da UFG voltado a práticas artísticas afrocentradas e antirracistas nas artes da cena.",
+    "source": "https://artesdacenappg.iac.ufg.br/n/199016-chamada-publica-nucleo-antirracismo-na-poetica-cenica-napoec"
+  },
+  "FAV": {
+    "name": "Faculdade de Artes Visuais",
+    "description": "Unidade acadêmica da UFG dedicada às artes visuais.",
+    "source": "https://ufg.br/p/27412-unidades-e-orgaos"
+  },
+  "GECOMPA": {
+    "name": "Grupo de Estudos em Comportamento e Adestramento de Pequenos Animais",
+    "description": "Grupo da UFG que estuda e divulga práticas de comportamento e adestramento de pequenos animais.",
+    "source": "https://files.cercomp.ufg.br/weby/up/66/o/EBOOK_-_GRUPOS_DE_ESTUDO_-_EVZUFG.pdf"
+  },
+  "NutriPet": {
+    "name": "Núcleo de Estudos e Extensão em Nutrição de Animais de Estimação",
+    "description": "Projeto de ensino da UFG dedicado à nutrição de animais de estimação.",
+    "source": "https://prograd.ufg.br/p/44270-projetos-de-ensino-projetos-encerrados-e-em-andamento"
+  },
+  "PNAE": {
+    "name": "Programa Nacional de Alimentação Escolar",
+    "description": "Programa federal de alimentação e educação alimentar e nutricional para estudantes da educação básica pública.",
+    "source": "https://www.gov.br/fnde/pt-br/acesso-a-informacao/acoes-e-programas/programas/pnae"
+  },
+  "TV": {
+    "name": "Televisão",
+    "description": "Os números das TVs identificam as telas de apresentação na programação.",
+    "source": "https://23conpeex.plateia.ufg.br/p/59956-apresentacao-de-trabalhos"
+  }
+}

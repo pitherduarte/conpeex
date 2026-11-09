@@ -1,46 +1,43 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarDays, Clock3, GraduationCap } from 'lucide-react'
+import { Clock3 } from 'lucide-react'
 import event from './data/event.json'
 import dataUrl from './data/presentations.json?url&no-inline'
-import { filterPresentations, indexPresentations, moveDay, unknown, weekLabel, weekStart } from './calendar'
-import type { FilterKey, Filters as FilterState } from './calendar'
+import { eventDates, filterPresentations, indexPresentations, weekLabel } from './calendar'
+import type { FilterKey, Filters as FilterState, Period } from './calendar'
 import type { Presentation } from './types'
-import { Calendar, WeekNavigation } from './components/Calendar'
+import { Calendar } from './components/Calendar'
 import { Filters, makeOptions, SearchBox } from './components/Filters'
 import { Details } from './components/Details'
 import type { Slot } from './components/Details'
+import { ThemeToggle } from './components/ThemeToggle'
 
-const initialWeek = weekStart(event.firstDay)
+const days = eventDates(event.firstDay, event.lastDay)
+const eventDaySet = new Set(days)
+const dateRange = weekLabel(event.firstDay, event.lastDay)
+const collator = new Intl.Collator('pt-BR', { numeric: true })
 
 function Agenda({ items }: { items: Presentation[] }) {
-  const { index, options, datesWithEvents, initialDay } = useMemo(() => ({
+  const { index, options, initialDay } = useMemo(() => ({
     index: indexPresentations(items),
-    options: makeOptions(items),
-    datesWithEvents: new Set(items.flatMap(item => item.date ? [item.date] : [])),
-    initialDay: items.find(item => item.date && item.date >= event.firstDay && item.date <= event.lastDay)?.date ?? event.firstDay,
+    options: makeOptions(items, days),
+    initialDay: items.find(item => item.date)?.date ?? days[0],
   }), [items])
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<FilterState>({})
-  const [week, setWeek] = useState(initialWeek)
   const [selected, setSelected] = useState(initialDay)
+  const [period, setPeriod] = useState<Period>('all')
   const [detail, setDetail] = useState<Presentation | null>(null)
   const [slot, setSlot] = useState<Slot | null>(null)
 
-  const matching = useMemo(() => filterPresentations(index, query, filters), [index, query, filters])
-  const days = Array.from({ length: 7 }, (_, i) => moveDay(week, i)).filter((day, i) => i < 5 || datesWithEvents.has(day))
-  const visible = matching.filter(item => item.date ? days.includes(item.date) : week === initialWeek)
+  const matching = useMemo(() => filterPresentations(index, query, filters, period), [index, query, filters, period])
   const hasFilters = Boolean(query.trim() || Object.keys(filters).length)
-  const firstMatch = matching.find(item => item.date)?.date
-  const dayCount = visible.filter(item => item.date === selected).length
+  const dayCount = matching.filter(item => item.date === selected).length
 
   function revealMatches(nextQuery: string, nextFilters: FilterState) {
-    const dates = filterPresentations(index, nextQuery, nextFilters).flatMap(item => item.date ? [item.date] : [])
-    if (dates.includes(selected)) return
-    const next = dates.find(date => days.includes(date)) ?? dates[0]
-    if (next) {
-      setWeek(weekStart(next))
-      setSelected(next)
-    }
+    const matches = filterPresentations(index, nextQuery, nextFilters, period)
+    if (matches.some(item => item.date === selected)) return
+    const next = matches.find(item => item.date)?.date
+    if (next) setSelected(next)
   }
 
   function changeQuery(value: string) {
@@ -48,52 +45,43 @@ function Agenda({ items }: { items: Presentation[] }) {
     if (value.trim()) revealMatches(value, filters)
   }
 
-  function changeFilter(key: FilterKey, value: string) {
+  function changeFilter(key: FilterKey, values: string[]) {
     const next = { ...filters }
-    if (value) next[key] = value
+    if (values.length) next[key] = values
     else delete next[key]
     setFilters(next)
-    if (key === 'date' && value && value !== unknown) {
-      setWeek(weekStart(value))
-      setSelected(value)
-    } else if (key === 'date' && value === unknown) {
-      setWeek(initialWeek)
-      setSelected(initialDay)
-    } else if (value) {
-      revealMatches(query, next)
-    }
-  }
-
-  function changeWeek(next: string) {
-    setWeek(next)
-    setSelected(Array.from({ length: 7 }, (_, index) => moveDay(next, index)).find(day => datesWithEvents.has(day)) ?? next)
+    if (key === 'date' && eventDaySet.has(values[0])) setSelected(values[0])
+    else if (values.length) revealMatches(query, next)
   }
 
   function clear() {
     setQuery('')
     setFilters({})
+    setPeriod('all')
   }
 
   return <>
+    <div className="program-tools">
       <SearchBox value={query} onChange={changeQuery} />
-      <Filters filters={filters} options={options} onFilter={changeFilter} onClear={clear} canClear={hasFilters} />
-      <section id="agenda" className="agenda" aria-labelledby="calendar-title">
-        <WeekNavigation label={weekLabel(days[0], days.at(-1)!)} onStep={offset => changeWeek(moveDay(week, offset))}
-          onReset={() => changeWeek(initialWeek)} isInitial={week === initialWeek} />
-        <div className="agenda-meta">
-          <span role="status"><strong>{matching.length.toLocaleString('pt-BR')}</strong> {matching.length === 1 ? 'apresentação encontrada' : 'apresentações encontradas'}
-            {visible.length !== matching.length && ` · ${visible.length} nesta semana`}
-            <span className="day-count"> · {dayCount.toLocaleString('pt-BR')} neste dia</span></span>
-          <span className="timezone"><Clock3 size={15} aria-hidden="true" /> {event.timeZone}</span>
+      <Filters filters={filters} options={options} onFilter={changeFilter} onClear={clear} canClear={hasFilters || period !== 'all'} />
+    </div>
+    <section id="agenda" className="agenda" aria-labelledby="calendar-title">
+      <div className="agenda-header">
+        <h2 id="calendar-title">Programação das apresentações</h2>
+        <span className="timezone"><Clock3 size={15} aria-hidden="true" /> {event.timeZone}</span>
+      </div>
+      <Calendar days={days} selected={selected} onDay={date => {
+        if (filters.date) changeFilter('date', [date])
+        else setSelected(date)
+      }} period={period} onPeriod={setPeriod} items={matching} onOpen={setDetail}
+        onSlot={(date, time, group) => setSlot({ date, time, items: group })}
+        hasFilters={hasFilters} onClear={clear}>
+        <div className="agenda-meta" role="status">
+          <strong>{matching.length.toLocaleString('pt-BR')}</strong> {matching.length === 1 ? 'apresentação encontrada' : 'apresentações encontradas'}
+          <span className="day-count"> · {dayCount.toLocaleString('pt-BR')} neste dia</span>
         </div>
-        {firstMatch && !visible.length && hasFilters && <button type="button" className="pill jump-results"
-          onClick={() => { setWeek(weekStart(firstMatch)); setSelected(firstMatch) }}>Ir para a semana com resultados</button>}
-        <Calendar days={days} selected={selected} onDay={date => {
-          if (filters.date) changeFilter('date', date)
-          else setSelected(date)
-        }} items={visible} onOpen={setDetail}
-          onSlot={(date, time, group) => setSlot({ date, time, items: group })} hasFilters={hasFilters} onClear={clear} />
-      </section>
+      </Calendar>
+    </section>
     <Details item={detail} slot={slot} onClose={() => { setDetail(null); setSlot(null) }} onBack={() => setDetail(null)} onOpen={setDetail} />
   </>
 }
@@ -110,10 +98,10 @@ export function App() {
         const response = await fetch(dataUrl, { signal: controller.signal })
         if (!response.ok) throw new Error('Falha ao carregar a programação')
         const records: Presentation[] = await response.json()
-        const collator = new Intl.Collator('pt-BR', { numeric: true })
-        records.sort((a, b) => (a.date ?? 'Z').localeCompare(b.date ?? 'Z') ||
+        const eventRecords = records.filter(item => !item.date || eventDaySet.has(item.date))
+        eventRecords.sort((a, b) => (a.date ?? 'Z').localeCompare(b.date ?? 'Z') ||
           (a.startTime ?? 'Z').localeCompare(b.startTime ?? 'Z') || collator.compare(a.table ?? '', b.table ?? ''))
-        if (!controller.signal.aborted) setItems(records)
+        if (!controller.signal.aborted) setItems(eventRecords)
       } catch {
         if (!controller.signal.aborted) setFailed(true)
       }
@@ -123,24 +111,24 @@ export function App() {
   }, [attempt])
 
   return <>
-    <a className="skip-link" href="#agenda">Ir para a agenda</a>
+    <a className="skip-link" href="#agenda">Ir para a programação</a>
     <header className="site-header">
       <div className="shell header-inner">
         <a href={import.meta.env.BASE_URL} className="brand" aria-label={`${event.name} · início`}>
-          <img width="43" height="43" src={import.meta.env.BASE_URL + 'marca.svg'} alt="" />
+          <span className="brand-mark" aria-hidden="true" />
           <span><strong>{event.name}</strong><small>{event.edition} · {event.year}</small></span>
         </a>
-        <span className="institution"><GraduationCap size={19} aria-hidden="true" /><span className="institution-full">{event.institution}</span><span className="institution-short">{event.institutionShort}</span></span>
+        <div className="header-actions">
+          <span className="institution"><span className="institution-full">{event.institution}</span><span className="institution-short">{event.institutionShort}</span></span>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
     <main className="shell">
       <section className="intro" aria-labelledby="page-title">
-        <div>
-          <p className="eyebrow"><span /> {event.fullName}</p>
-          <h1 id="page-title">Agenda acadêmica<span>.</span></h1>
-          <p className="intro-text">Encontre trabalhos, consulte horários e planeje sua visita ao {event.name}.</p>
-        </div>
-        <div className="event-date"><CalendarDays size={19} aria-hidden="true" /> {weekLabel(event.firstDay, event.lastDay)}</div>
+        <div className="event-date"><span className="event-marker" aria-hidden="true" />{dateRange}</div>
+        <h1 id="page-title">Apresentações do {event.name}</h1>
+        <p className="intro-text">Encontre trabalhos, consulte horários e conheça as pesquisas apresentadas durante o congresso.</p>
       </section>
       {items ? <Agenda items={items} /> : <div id="agenda" className="empty agenda">
         {failed ? <>
@@ -149,6 +137,6 @@ export function App() {
         </> : <p role="status">Carregando a programação…</p>}
       </div>}
     </main>
-    <footer className="site-footer"><div className="shell"><strong>{event.name} {event.year} · {event.institutionShort}</strong><a href={event.sourceUrl}>Programação oficial da UFG</a></div></footer>
+    <footer className="site-footer"><div className="shell"><strong>{event.fullName} · {event.institutionShort}</strong><a href={event.sourceUrl}>Programação oficial da UFG</a></div></footer>
   </>
 }

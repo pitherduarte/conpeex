@@ -1,0 +1,41 @@
+.acronym-help { display: inline-flex; flex: none; align-items: center; vertical-align: middle; }
+.acronym-trigger {
+  display: grid;
+  place-items: center;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: var(--muted);
+  background: transparent;
+}
+.acronym-trigger:hover, .acronym-trigger[aria-expanded="true"] { color: var(--accent); background: var(--page); }
+.acronym-trigger:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.acronym-popover {
+  position: fixed;
+  z-index: 20;
+  inset: 12px auto auto 12px;
+  width: min(304px, calc(100vw - 24px));
+  max-height: min(300px, calc(100dvh - 24px));
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
+  text-align: left;
+  font-weight: 400;
+  overflow: auto;
+}
+.acronym-popover[hidden] { display: none; }
+.acronym-popover:focus { outline: none; }
+.acronym-entry { display: grid; gap: 5px; font-size: 0.8125rem; line-height: 1.45; }
+.acronym-entry + .acronym-entry { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.acronym-entry strong { font-weight: 650; }
+.acronym-entry span { color: var(--muted); }
+.acronym-entry a { justify-self: start; color: var(--accent); font-size: 0.75rem; }
+@media (pointer: coarse) {
+  .acronym-trigger { min-width: 34px; min-height: 34px; }
+}

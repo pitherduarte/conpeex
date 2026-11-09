@@ -1,10 +1,12 @@
-# Agenda acadêmica do CONPEEX
+# Apresentações do CONPEEX
 
 Consulta pública à programação da 23ª edição do Congresso de Pesquisa, Ensino e Extensão da Universidade Federal de Goiás.
 
 [Abrir a agenda](https://pitherduarte.github.io/conpeex/)
 
-A agenda abre no primeiro dia com apresentações dos documentos importados. No computador, a grade semanal organiza os trabalhos pelo horário de início e abre todos os trabalhos de um horário pelo botão de apresentações adicionais. No celular, a agenda mostra um dia por vez. A altura de cada linha depende do conteúdo, para preservar a leitura de apresentações curtas. Os horários dos cartões e dos detalhes são os horários da fonte.
+A agenda cobre os cinco dias da edição, de 9 a 13 de novembro de 2026. No computador, a grade semanal organiza os trabalhos pelo horário de início. No celular, a agenda mostra um dia por vez. Em ambas as telas, selecione manhã, tarde ou noite e use o botão de apresentações adicionais para consultar todos os trabalhos de um horário. Trabalhos com início a confirmar ficam em **Todo o dia**.
+
+O tema acompanha a preferência do sistema até que o visitante faça uma escolha no cabeçalho. A busca e os filtros podem ser combinados. A camada de apresentação ajusta a capitalização dos títulos e autores sem alterar os registros. As definições verificadas e as pendências estão no [glossário](docs/glossary.md).
 
 ## Desenvolvimento
 

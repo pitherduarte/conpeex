@@ -1,103 +1,126 @@
-import { ArrowRight, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock3, Plus } from 'lucide-react'
-import { dateLabel, dayNumber, scheduleByTime, weekdayLabel } from '../calendar'
+import { CalendarDays, ChevronRight } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { dateLabel, dayNumber, periods, scheduleByTime, shortDateLabel, timePeriod, weekdayLabel } from '../calendar'
+import type { Period } from '../calendar'
 import type { Presentation } from '../types'
 import { PresentationCard } from './PresentationCard'
 import './calendar.css'
-
-export function WeekNavigation({ label, onStep, onReset, isInitial }: {
-  label: string
-  onStep: (offset: number) => void
-  onReset: () => void
-  isInitial: boolean
-}) {
-  return <div className="week-navigation">
-    <h2 id="calendar-title"><CalendarDays size={20} aria-hidden="true" />{label}</h2>
-    <div className="week-buttons">
-      {!isInitial && <button type="button" className="pill reset-week" onClick={onReset}>Semana do evento</button>}
-      <div className="arrow-group">
-        <button type="button" aria-label="Semana anterior" onClick={() => onStep(-7)}><ChevronLeft size={20} /></button>
-        <button type="button" aria-label="Próxima semana" onClick={() => onStep(7)}><ChevronRight size={20} /></button>
-      </div>
-    </div>
-  </div>
-}
 
 interface Props {
   days: string[]
   selected: string
   onDay: (date: string) => void
+  period: Period
+  onPeriod: (period: Period) => void
   items: Presentation[]
   onOpen: (item: Presentation) => void
   onSlot: (date: string, time: string, items: Presentation[]) => void
   hasFilters: boolean
   onClear: () => void
+  children: ReactNode
 }
 
-function Empty({ hasFilters, onClear }: Pick<Props, 'hasFilters' | 'onClear'>) {
+function Empty({ hasFilters, onClear, period }: Pick<Props, 'hasFilters' | 'onClear' | 'period'>) {
   return <div className="empty">
-    <div className="empty-icon"><CalendarDays size={24} aria-hidden="true" /></div>
-    <strong>{hasFilters ? 'Nenhum resultado por aqui' : 'Agenda livre neste período'}</strong>
-    <p>{hasFilters ? 'Ajuste a busca ou os filtros para encontrar outros trabalhos.' : 'Escolha outro dia ou navegue para uma semana com apresentações.'}</p>
-    {hasFilters && <button type="button" className="pill" onClick={onClear}>Limpar busca e filtros <ArrowRight size={15} /></button>}
+    <CalendarDays size={23} aria-hidden="true" />
+    <strong>{hasFilters ? 'Nenhum resultado por aqui' : period !== 'all' ? 'Nenhuma apresentação neste período' : 'Nenhuma apresentação neste dia'}</strong>
+    <p>{hasFilters ? 'Ajuste a busca ou os filtros para ver outros trabalhos.' : 'Escolha outro dia ou período para consultar mais apresentações.'}</p>
+    {hasFilters && <button type="button" className="pill" onClick={onClear}>Limpar busca e filtros</button>}
   </div>
 }
 
-export function Calendar({ days, selected, onDay, items, onOpen, onSlot, hasFilters, onClear }: Props) {
+function SlotPreview({ day, time, items, max, onOpen, onSlot }: {
+  day: string
+  time: string
+  items: Presentation[]
+  max: number
+  onOpen: Props['onOpen']
+  onSlot: Props['onSlot']
+}) {
+  if (items.length === 0) return null
+  const remaining = items.length - max
+  return <>
+    <div className="slot-items">
+      {items.slice(0, max).map(item => <PresentationCard key={item.id} item={item} onOpen={onOpen} compact={max === 1} />)}
+    </div>
+    {remaining > 0 && <button type="button" className="more-button" onClick={() => onSlot(day, time, items)}
+      aria-label={`Ver ${items.length} apresentações de ${dateLabel(day)}${time ? ` às ${time}` : ', horário a confirmar'}`}>
+      <span>+ {remaining} {remaining === 1 ? 'apresentação' : 'apresentações'}</span><ChevronRight size={14} aria-hidden="true" />
+    </button>}
+  </>
+}
+
+const sections = [
+  { key: 'morning', label: 'Manhã', range: 'Antes de 12h' },
+  { key: 'afternoon', label: 'Tarde', range: '12h às 17h59' },
+  { key: 'evening', label: 'Noite', range: 'A partir de 18h' },
+  { key: 'unknown', label: 'Horário a confirmar', range: '' },
+] as const
+
+export function Calendar({ days, selected, onDay, period, onPeriod, items, onOpen, onSlot, hasFilters, onClear, children }: Props) {
   const byDay = new Map(days.map(day => [day, scheduleByTime(items.filter(item => item.date === day))]))
   const times = [...new Set([...byDay.values()].flatMap(slots => [...slots.keys()]))].sort((a, b) => (a || 'Z').localeCompare(b || 'Z'))
   const daySlots = byDay.get(selected)
   const dayTimes = times.filter(time => daySlots?.has(time))
   const undated = items.filter(item => !item.date)
   return <>
-    <div className="weekly-calendar" style={{ '--day-columns': days.length } as React.CSSProperties}>
+    <div className="day-picker" role="group" aria-label="Escolher dia">
+      {days.map(day => <button type="button" className="day-pill" key={day} aria-pressed={day === selected}
+        aria-label={dateLabel(day)} onClick={() => onDay(day)}>
+        <span>{weekdayLabel(day)}</span><strong>{dayNumber(day)}</strong>
+      </button>)}
+    </div>
+    <div className="calendar-toolbar">
+      <div className="period-picker" role="group" aria-label="Período do dia">
+        {periods.map(option => <button key={option.key} type="button" aria-pressed={period === option.key}
+          onClick={() => onPeriod(option.key)}>{option.label}</button>)}
+      </div>
+      {children}
+    </div>
+    <div className="weekly-calendar">
       <div className="calendar-row week-head">
-        <div className="hour-head" title="Horário"><Clock3 size={17} aria-label="Horário" /></div>
-        {days.map(day => <div key={day} className={day === selected ? 'day-head current' : 'day-head'} aria-label={dateLabel(day)}>
-          <span>{weekdayLabel(day)}</span><strong>{dayNumber(day)}</strong>
+        <div className="hour-head">Horário</div>
+        {days.map(day => <div key={day} className="day-head" aria-label={dateLabel(day)}>
+          <span>{weekdayLabel(day)}</span>
+          <strong>{shortDateLabel(day)}</strong>
+          {!byDay.get(day)?.size && <small>Sem apresentações</small>}
         </div>)}
       </div>
-      {times.length ? times.map(time => <div className="calendar-row time-row" key={time}>
-        <div className="time-label">{time || 'A confirmar'}</div>
-        {days.map(day => {
-          const group = byDay.get(day)?.get(time) ?? []
-          return <div className="calendar-cell" key={day} role={group.length ? 'group' : undefined}
-            aria-label={group.length ? `${dateLabel(day)}, ${time || 'horário a confirmar'}` : undefined}>
-            {group.slice(0, 1).map(item => <PresentationCard key={item.id} item={item} onOpen={onOpen} compact />)}
-            {group.length > 1 && <button type="button" className="more-button" onClick={() => onSlot(day, time, group)}
-              aria-label={`Ver ${group.length} apresentações de ${dateLabel(day)} às ${time || 'horário a confirmar'}`}>
-              <Plus size={15} aria-hidden="true" />{group.length - 1} {group.length === 2 ? 'apresentação' : 'apresentações'}
-            </button>}
-          </div>
-        })}
-      </div>) : !undated.length && <Empty hasFilters={hasFilters} onClear={onClear} />}
+      {!times.length && <Empty hasFilters={hasFilters} onClear={onClear} period={period} />}
+      {sections.map(section => {
+        const sectionTimes = times.filter(time => timePeriod(time) === section.key)
+        if (!sectionTimes.length) return null
+        return <section key={section.key} aria-label={section.label}>
+          <div className="period-band"><h3>{section.label}</h3>{section.range && <span>{section.range}</span>}</div>
+          {sectionTimes.map(time => <div className="calendar-row time-row" key={time}>
+            <div className="time-label">{time || 'A confirmar'}</div>
+            {days.map(day => {
+              const group = byDay.get(day)?.get(time) ?? []
+              return <div className="calendar-cell" key={day} role={group.length ? 'group' : undefined}
+                aria-label={group.length ? `${dateLabel(day)}, ${time || 'horário a confirmar'}` : undefined}>
+                <SlotPreview day={day} time={time} items={group} max={1} onOpen={onOpen} onSlot={onSlot} />
+              </div>
+            })}
+          </div>)}
+        </section>
+      })}
     </div>
     <div className="daily-calendar">
-      <div className="day-picker" role="group" aria-label="Escolher dia">
-        {days.map(day => <button type="button" className="day-pill" key={day} aria-pressed={day === selected}
-          aria-label={dateLabel(day)} onClick={() => onDay(day)}>
-          <span>{weekdayLabel(day)}</span><strong>{dayNumber(day)}</strong>
-        </button>)}
-      </div>
-      {dayTimes.length > 1 && <label className="filter-pill time-picker">
-        <Clock3 size={15} aria-hidden="true" /><span aria-hidden="true">Ir para um horário</span><ChevronDown size={14} aria-hidden="true" />
-        <select aria-label="Ir para um horário" value="" onChange={event => {
-          const target = document.getElementById(event.target.value)
-          target?.scrollIntoView({ block: 'start' })
-          target?.focus({ preventScroll: true })
-        }}>
-          <option value="" disabled>Escolher horário</option>
-          {dayTimes.map(time => <option key={time} value={`slot-${selected}-${time}`}>{time || 'Horário a confirmar'}</option>)}
-        </select>
-      </label>}
-      {dayTimes.length ? <div className="daily-slots">
-        {dayTimes.map(time => {
-          const group = daySlots?.get(time) ?? []
-          return <section className="daily-slot" key={time} id={`slot-${selected}-${time}`} tabIndex={-1}>
-            <h3>{time || 'Horário a confirmar'}{group.length > 1 && <span>{group.length} apresentações</span>}</h3>
-            <div className="slot-items">{group.map(item => <PresentationCard key={item.id} item={item} onOpen={onOpen} />)}</div>
-          </section>
-        })}
-      </div> : <Empty hasFilters={hasFilters} onClear={onClear} />}
+      {!dayTimes.length && <Empty hasFilters={hasFilters} onClear={onClear} period={period} />}
+      {sections.map(section => {
+        const sectionTimes = dayTimes.filter(time => timePeriod(time) === section.key)
+        if (!sectionTimes.length) return null
+        return <section className="daily-period" key={section.key} aria-label={section.label}>
+          {period === 'all' && section.key !== 'unknown' && <div className="period-band"><h3>{section.label}</h3><span>{section.range}</span></div>}
+          {sectionTimes.map(time => {
+            const group = daySlots?.get(time) ?? []
+            return <section className="daily-slot" key={time} id={`slot-${selected}-${time}`}>
+              <h4>{time || 'Horário a confirmar'}<span>{group.length} {group.length === 1 ? 'apresentação' : 'apresentações'}</span></h4>
+              <SlotPreview day={selected} time={time} items={group} max={2} onOpen={onOpen} onSlot={onSlot} />
+            </section>
+          })}
+        </section>
+      })}
     </div>
     {undated.length > 0 && <section className="undated">
       <h3>Data a confirmar</h3>

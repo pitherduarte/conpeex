@@ -3,10 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f7f8f5" />
-    <meta name="description" content="Consulte os horários e encontre trabalhos na programação acadêmica do CONPEEX da Universidade Federal de Goiás." />
+    <meta name="theme-color" content="#fafbf9" />
+    <meta name="description" content="Consulte os trabalhos, horários e locais das apresentações do CONPEEX da Universidade Federal de Goiás." />
     <link rel="icon" href="%BASE_URL%marca.svg" type="image/svg+xml" />
-    <title>Agenda acadêmica · CONPEEX</title>
+    <title>Apresentações do CONPEEX</title>
+    <script>
+      let storedTheme
+      try { storedTheme = localStorage.getItem('conpeex-theme') } catch {}
+      const theme = storedTheme === 'light' || storedTheme === 'dark'
+        ? storedTheme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      document.documentElement.dataset.theme = theme
+      if (theme === 'dark') document.querySelector('meta[name="theme-color"]').content = '#101110'
+    </script>
   </head>
   <body>
     <div id="root"></div>

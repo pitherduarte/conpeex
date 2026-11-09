@@ -1,18 +1,25 @@
-import { MapPin } from 'lucide-react'
-import { modalityColor, timeLabel } from '../calendar'
+import { timeLabel } from '../calendar'
+import { displayAuthor, displayText } from '../presentationText'
 import type { Presentation } from '../types'
+import { AcronymHelp } from './AcronymHelp'
 
 export function PresentationCard({ item, onOpen, compact = false }: {
   item: Presentation
   onOpen: (item: Presentation) => void
   compact?: boolean
 }) {
-  return <button type="button" className={`presentation-card tone-${modalityColor(item.modality)}`} onClick={() => onOpen(item)}>
-    <span className="card-meta">
-      <span className="card-modality">{item.modality ?? 'Modalidade não informada'}</span>
-      {item.table && <span className="card-venue"><MapPin size={12} aria-hidden="true" />{item.table}</span>}
-    </span>
-    <span className="card-title">{item.title}</span>
-    {!compact && <span className="card-subtitle">{[item.authors.join('; '), timeLabel(item)].filter(Boolean).join(' · ')}</span>}
-  </button>
+  const modality = displayText(item.modality ?? 'Modalidade não informada')
+  const table = item.table ? displayText(item.table) : null
+  return <article className="presentation-card">
+    <div className="card-heading">
+      <button type="button" className="card-title" onClick={() => onOpen(item)}>{displayText(item.title)}</button>
+      <AcronymHelp text={item.title} />
+    </div>
+    {!compact && item.authors.length > 0 && <p className="card-authors">{item.authors.map(displayAuthor).join('; ')}</p>}
+    <div className="card-meta">
+      <span className="card-modality">{modality} <AcronymHelp text={modality} /></span>
+      {table && <span>{table} <AcronymHelp text={table} /></span>}
+      {!compact && <span className="card-time">{timeLabel(item)}</span>}
+    </div>
+  </article>
 }
