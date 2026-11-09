@@ -1,0 +1,26 @@
+ .search-box { display: flex; align-items: center; gap: 10px; min-height: 52px; background: var(--white); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: 16px; padding-inline: 13px 7px; color: var(--green); }
+.search-box:focus-within { outline: 2px solid #3c7e69; outline-offset: 2px; }
+.search-box input { width: 100%; min-width: 0; min-height: 50px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 1rem; }
+.search-box input::placeholder { color: var(--muted); opacity: 1; font-size: .85rem; }
+.search-box input::-webkit-search-cancel-button { display: none; }
+.search-clear { display: grid; place-items: center; background: transparent; color: var(--muted); border: 0; width: 44px; height: 44px; flex: none; border-radius: 50%; }
+.search-clear:hover { background: var(--green-light); }
+
+.filter-bar { margin-top: 11px; position: sticky; top: 0; z-index: 3; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 18px; background: var(--white); box-shadow: 0 5px 17px #1735250c; }
+.filter-label { display: none; }
+.filter-options { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.filter-pill { position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 5px; padding: 0 9px; min-height: 44px; max-width: 100%; background: #f8f9f7; border: 1px solid var(--border); border-radius: 999px; color: var(--ink); font-size: .76rem; font-weight: 650; }
+.filter-pill > span { overflow-wrap: anywhere; }
+.filter-pill:hover, .filter-pill.is-active { background: var(--green-light); border-color: #9ebcaa; color: var(--brand); }
+.filter-pill:focus-within { outline: 3px solid #3c7e69; outline-offset: 2px; }
+.filter-pill select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.clear-all { min-height: 44px; display: inline-flex; align-items: center; gap: 5px; background: none; border: 0; border-radius: 999px; padding: 5px 10px; color: var(--brand); font-size: .8rem; font-weight: 650; }
+.clear-all:hover { background: var(--green-light); }
+@media (min-width: 720px) {
+  .search-box { padding-inline-start: 17px; }
+  .search-box input::placeholder { font-size: .95rem; }
+  .filter-bar { padding: 8px 11px; gap: 13px; }
+  .filter-label { display: inline-flex; align-items: center; gap: 7px; padding-inline: 3px 8px; color: var(--muted); font-size: .82rem; font-weight: 700; }
+  .filter-pill { padding-inline: 12px; font-size: .83rem; }
+  .filter-options { gap: 8px; }
+}
