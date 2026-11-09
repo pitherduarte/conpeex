@@ -95,3 +95,12 @@ test('agenda diária e painel inferior em tela estreita', async ({ page }) => {
   await expect(dialog).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
 })
+
+test('busca preserva o título e a autoria em colunas distintas do PDF', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('searchbox').fill('diagnostico tardio de fibrose cistica')
+  await page.getByRole('button', { name: /DIAGNÓSTICO TARDIO DE FIBROSE CÍSTICA/ }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('heading', { name: /^DIAGNÓSTICO TARDIO DE FIBROSE CÍSTICA/ })).toBeVisible()
+  await expect(dialog.getByText('LUZINETE REZENDE DA INCARNACAO', { exact: true })).toBeVisible()
+})

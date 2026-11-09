@@ -71,6 +71,6 @@
     .agenda-meta { font-size: .83rem; margin: 10px 0 15px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 }

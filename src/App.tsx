@@ -149,6 +149,6 @@ export function App() {
         </> : <p role="status">Carregando a programação…</p>}
       </div>}
     </main>
-    <footer className="site-footer"><div className="shell"><strong>{event.name} {event.year}</strong><span>{event.institution}</span></div></footer>
+    <footer className="site-footer"><div className="shell"><strong>{event.name} {event.year} · {event.institutionShort}</strong><a href={event.sourceUrl}>Programação oficial da UFG</a></div></footer>
   </>
 }

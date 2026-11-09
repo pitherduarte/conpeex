@@ -10,7 +10,7 @@ import pymupdf
 TIME = re.compile(r'(?<!\d)(\d{1,2})\s*[:h]\s*(\d{2})(?!\d)', re.I)
 MONTHS = ('janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
           'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro')
-DAY = re.compile(r'(\d{1,2})\s+de\s+(' + '|'.join(MONTHS) + ')\b', re.I)
+DAY = re.compile(r'(\d{1,2})\s+de\s+(' + '|'.join(MONTHS) + r')\b', re.I)
 SESSION = re.compile(r'Sessão\s+(\d+)', re.I)
 VENUE = re.compile(r'((?:Mesa|TV)\s*\d+)\s*[-–]\s*(?:Modalidade:?\s*)?(.+)', re.I)
 
@@ -21,11 +21,13 @@ def read_pdf(path: Path, year: int):
     with pymupdf.open(path) as document:
         for page in document:
             source = {'file': path.name, 'page': page.number + 1}
-            lines = [
-                (pymupdf.Rect(line['bbox']), ''.join(span['text'] for span in line['spans']).strip())
+            spans_by_line = [
+                [(pymupdf.Rect(span['bbox']), span['text']) for span in line['spans']]
                 for block in page.get_text('dict', flags=pymupdf.TEXTFLAGS_TEXT)['blocks']
                 for line in block.get('lines', [])
             ]
+            lines = [(pymupdf.Rect(spans[0][0]), ''.join(text for _, text in spans).strip())
+                     for spans in spans_by_line if spans]
             header = ' '.join(text for box, text in lines if box.y1 < 49 and box.x0 < 55)
             day, session, venue = DAY.search(header), SESSION.search(header), VENUE.search(header)
             session_times = [f'{int(h):02d}:{m}' for h, m in TIME.findall(header)]
@@ -53,9 +55,16 @@ def read_pdf(path: Path, year: int):
                 if cell is None:
                     return ''
                 bounds = pymupdf.Rect(cell)
-                content = [(box, text) for box, text in lines if text and
-                           bounds.y0 <= (box.y0 + box.y1) / 2 < bounds.y1 and
-                           bounds.x0 - 1 <= box.x0 < bounds.x1 - 1]
+                # A PDF text line can combine independent spans from adjacent columns.
+                content = []
+                for spans in spans_by_line:
+                    fragments = [(box, text) for box, text in spans
+                                 if bounds.y0 <= (box.y0 + box.y1) / 2 < bounds.y1
+                                 and bounds.x0 - 1 <= box.x0 < bounds.x1 - 1]
+                    if fragments:
+                        text = ''.join(fragment for _, fragment in fragments).strip()
+                        if text:
+                            content.append((fragments[0][0], text))
                 return ' '.join(text for _, text in sorted(content, key=lambda line: (round(line[0].y0, 1), line[0].x0)))
 
             captured = []
