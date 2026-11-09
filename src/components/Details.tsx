@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { MouseEvent } from 'react'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Clock3, Hash, Layers3, MapPin, Tag, Users, X } from 'lucide-react'
 import { dateLabel, periods, timeLabel, timePeriod } from '../calendar'
 import { displayAuthor, displayText } from '../presentationText'
 import type { Presentation } from '../types'
@@ -40,15 +40,16 @@ export function Details({ item, slot, onClose, onBack, onOpen }: {
     if (event.target === event.currentTarget) onClose()
   }
 
+  const modality = item && displayText(item.modality ?? 'Modalidade não informada')
   const facts = item ? [
-    ['Data', item.date ? dateLabel(item.date) : 'Não informada'],
-    ['Horário', item.startTime && !item.endTime ? `${item.startTime} · término a confirmar` : timeLabel(item)],
-    ['Modalidade', displayText(item.modality ?? 'Não informada')],
-    ['Mesa / TV', displayText(item.table ?? 'Não informada')],
-    ['Sessão', displayText(item.session ?? 'Não informada')],
-    ...(item.location ? [['Local', displayText(item.location)]] : []),
-    ...(item.workNumber ? [['Número do trabalho', item.workNumber]] : []),
-  ] : []
+    [CalendarDays, 'Data', item.date ? dateLabel(item.date) : 'Não informada'],
+    [Clock3, 'Horário', item.startTime && !item.endTime ? `${item.startTime} · término a confirmar` : timeLabel(item)],
+    [Tag, 'Área do conhecimento', <AreaLabel label={item.knowledgeArea} inferred={item.inferredArea} />],
+    [Layers3, 'Sessão', displayText(item.session ?? 'Não informada')],
+    [MapPin, 'Mesa / TV', displayText(item.table ?? 'Não informada')],
+    [Hash, 'Número do trabalho', item.workNumber ?? 'Não informado'],
+    ...(item.location ? [[MapPin, 'Local', displayText(item.location)] as const] : []),
+  ] as const : []
 
   const slotPeriod = slot && periods.find(period => period.key === timePeriod(slot.time))?.label
   const venues = new Map<string, Presentation[]>()
@@ -59,7 +60,7 @@ export function Details({ item, slot, onClose, onBack, onOpen }: {
     venues.set(venue, entries)
   }
 
-  return <dialog className="details-dialog" ref={ref} data-slot={slot ? '' : undefined} aria-labelledby="details-title"
+  return <dialog className="details-dialog" ref={ref} data-slot={!item && slot ? '' : undefined} aria-labelledby="details-title"
     onCancel={event => { event.preventDefault(); onClose() }} onClick={closeBackdrop}>
     <div className="dialog-inner">
       <div className="dialog-controls">
@@ -71,19 +72,28 @@ export function Details({ item, slot, onClose, onBack, onOpen }: {
         <h2 id="details-title" ref={header} tabIndex={-1}>{slot.time || 'Horário a confirmar'}</h2>
         <p className="slot-summary">{dateLabel(slot.date)}{slotPeriod && ` · ${slotPeriod}`} · {slot.items.length} apresentações</p>
       </div>}
-      <div className="dialog-content" ref={content} key={item?.id ?? 'slot'}>
+      <div className={item ? 'dialog-content presentation-detail' : 'dialog-content'} ref={content} key={item?.id ?? 'slot'}>
         {item ? <>
+          <div className="detail-modality">
+            <span className="detail-modality-label">{modality}</span>
+            {modality && <AcronymHelp text={modality} />}
+          </div>
           <div className="detail-heading">
             <h2 id="details-title" ref={header} tabIndex={-1}>{displayText(item.title)}</h2>
             <AcronymHelp text={item.title} />
           </div>
           <div className="detail-authors">
-            <strong>Autoria</strong>
-            {item.authors.length ? <ul>{item.authors.map((author, index) => <li key={index}>{displayAuthor(author)}</li>)}</ul> : <p>Não informada.</p>}
+            <Users size={18} aria-hidden="true" />
+            <div>
+              <strong>Autoria</strong>
+              {item.authors.length ? <ul>{item.authors.map((author, index) => <li key={index}>{displayAuthor(author)}</li>)}</ul> : <p>Não informada.</p>}
+            </div>
           </div>
           <dl className="detail-facts">
-            {facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value} <AcronymHelp text={value} /></dd></div>)}
-            <div><dt>Área do conhecimento</dt><dd><AreaLabel label={item.knowledgeArea} inferred={item.inferredArea} /></dd></div>
+            {facts.map(([Icon, label, value]) => <div className="detail-fact" key={label}>
+              <dt><Icon size={16} aria-hidden="true" />{label}</dt>
+              <dd>{value}{typeof value === 'string' && <AcronymHelp text={value} />}</dd>
+            </div>)}
           </dl>
           {item.scheduleNote && <p className="schedule-note">{item.scheduleNote}</p>}
           <section className="detail-description"><h3>Descrição</h3><p>{item.description ? displayText(item.description) : 'A descrição deste trabalho não foi fornecida.'}</p></section>

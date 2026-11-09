@@ -11,17 +11,26 @@ body:has(.details-dialog[open]) { overflow: hidden; }
 .dialog-content { overflow: auto; overscroll-behavior: contain; padding: 16px 16px max(22px, env(safe-area-inset-bottom)); }
 .details-dialog h2 { font-size: clamp(1.18rem, 4vw, 1.7rem); line-height: 1.23; letter-spacing: -.03em; margin-bottom: 10px; }
 .details-dialog h2:focus { outline: none; }
+.detail-modality { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
+.detail-modality-label { display: inline-block; padding: 5px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: .76rem; font-weight: 670; line-height: 1.35; }
 .detail-heading { display: flex; align-items: flex-start; gap: 5px; }
-.detail-authors { font-size: .83rem; line-height: 1.45; }
+.presentation-detail h2 { font-size: clamp(1.25rem, 4.5vw, 1.8rem); margin-bottom: 15px; }
+.detail-authors { display: flex; gap: 9px; align-items: flex-start; font-size: .86rem; line-height: 1.5; }
+.detail-authors > svg { color: var(--accent); margin-top: 1px; }
 .detail-authors strong { font-weight: 650; }
-.detail-authors ul { list-style: none; margin: 2px 0 0; padding: 0; }
+.detail-authors ul { display: grid; gap: 2px; list-style: none; margin: 3px 0 0; padding: 0; }
 .detail-authors p, .detail-authors li { color: var(--muted); }
-.detail-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin-block: 16px; border-block: 1px solid var(--rule); padding-block: 12px; }
+.detail-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 10px; margin-block: 18px 20px; padding: 12px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-subtle); }
+.detail-fact { position: relative; min-width: 0; padding-inline-start: 22px; }
+.detail-fact dt > svg { position: absolute; inset-inline-start: 0; top: 1px; color: var(--accent); }
 .detail-facts dt { font-size: .73rem; line-height: 1.35; color: var(--muted); }
-.detail-facts dd { margin-top: 2px; font-size: .84rem; line-height: 1.35; font-weight: 620; }
+.detail-facts dd { margin-top: 3px; font-size: .85rem; line-height: 1.42; font-weight: 640; }
+.detail-facts .area-label { display: inline; }
+.detail-facts .area-dot { display: inline-block; margin-inline-end: 5px; vertical-align: .08em; }
+.detail-facts .area-label small { margin-inline-start: 5px; }
 .schedule-note { margin: 0 0 14px; padding: 8px 10px; border-radius: 6px; background: var(--warning-bg); color: var(--warning); font-size: .79rem; line-height: 1.5; }
-.detail-description h3 { font-size: .95rem; margin-bottom: 5px; }
-.detail-description p { font-size: .87rem; color: var(--muted); line-height: 1.62; white-space: pre-wrap; }
+.detail-description h3 { font-size: .99rem; margin-bottom: 7px; }
+.detail-description p { max-width: 70ch; font-size: .92rem; color: var(--muted); line-height: 1.68; white-space: pre-wrap; }
 .slot-summary { color: var(--muted); font-size: .83rem; line-height: 1.45; margin: -4px 0 12px; }
 .slot-list { gap: 0; border-block-start: 1px solid var(--rule); }
 .slot-list .presentation-card { border: 0; border-radius: 0; border-block-end: 1px solid var(--rule); padding: 10px 5px; }
@@ -30,6 +39,8 @@ body:has(.details-dialog[open]) { overflow: hidden; }
   .dialog-inner { max-height: calc(85dvh - 2px); }
   .dialog-controls { padding-inline: 22px; }
   .dialog-content { padding: 19px 23px 24px; }
+  .detail-facts { gap: 16px 18px; padding: 15px; }
+  .detail-fact { padding-inline-start: 24px; }
 }
 
 .dialog-inner:has(.slot-header) { grid-template-rows: auto auto minmax(0, 1fr); }
@@ -43,6 +54,7 @@ body:has(.details-dialog[open]) { overflow: hidden; }
   .dialog-controls::before { content: ''; position: absolute; top: 5px; left: 50%; width: 29px; height: 3px; border-radius: 9px; background: var(--border); transform: translateX(-50%); }
   .dialog-controls > span { padding-top: 5px; }
   .dialog-content { padding-top: 13px; }
+  .presentation-detail { padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
 }
 @media (min-width: 900px) {
   .details-dialog[data-slot] { inset: 0 0 0 auto; margin: 0; width: min(580px, 100%); height: 100dvh; max-height: 100dvh; border-radius: 12px 0 0 12px; }
