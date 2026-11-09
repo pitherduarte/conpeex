@@ -1,0 +1,20 @@
+[data-area="exatas"] { --area-light: #376caa; --area-dark: #91b6e4; }
+[data-area="engenharias"] { --area-light: #955426; --area-dark: #e4af82; }
+[data-area="biologicas"] { --area-light: #267467; --area-dark: #8bccbf; }
+[data-area="saude"] { --area-light: #a34b62; --area-dark: #e7a7b6; }
+[data-area="agrarias"] { --area-light: #627230; --area-dark: #bacc87; }
+[data-area="sociais"] { --area-light: #8d6420; --area-dark: #e0be78; }
+[data-area="humanas"] { --area-light: #765b9a; --area-dark: #c5afe4; }
+[data-area="artes"] { --area-light: #9b4e85; --area-dark: #e5a7d3; }
+[data-area="multi"] { --area-light: #3f7188; --area-dark: #8ec1d5; }
+[data-area="neutra"] { --area-light: #606a65; --area-dark: #a8b0a9; }
+[data-area] { --area: var(--area-light); --area-tint: color-mix(in srgb, var(--area) 7%, var(--surface)); }
+[data-theme="dark"] [data-area] { --area: var(--area-dark); --area-tint: color-mix(in srgb, var(--area) 9%, var(--surface)); }
+.area-label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; color: var(--area); font-weight: 620; }
+.area-dot { background: var(--area); inline-size: 7px; block-size: 7px; flex: none; border-radius: 50%; }
+.area-label small { font-size: .86em; color: var(--muted); font-weight: 500; }
+.area-legend { margin: 0 0 10px; font-size: .78rem; color: var(--muted); }
+.area-legend summary { cursor: pointer; min-height: 35px; align-content: center; width: fit-content; }
+.area-legend ul { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 8px 0; list-style: none; }
+.presentation-card[data-area] { background: var(--area-tint); }
+.presentation-card[data-area]:hover, .presentation-card[data-area]:focus-within { background: color-mix(in srgb, var(--area) 12%, var(--surface)); }

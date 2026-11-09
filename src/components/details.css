@@ -31,3 +31,21 @@ body:has(.details-dialog[open]) { overflow: hidden; }
   .dialog-controls { padding-inline: 22px; }
   .dialog-content { padding: 19px 23px 24px; }
 }
+
+.dialog-inner:has(.slot-header) { grid-template-rows: auto auto minmax(0, 1fr); }
+.slot-header { padding: 10px 16px 0; border-bottom: 1px solid var(--rule); }
+.slot-list { display: grid; gap: 19px; border: 0; }
+.slot-list .slot-items { gap: 9px; }
+.slot-list .presentation-card { border: 1px solid var(--border); border-radius: 8px; padding: 11px; }
+.venue-group h3 { position: sticky; top: -16px; z-index: 2; padding: 7px 0; margin-bottom: 4px; background: var(--surface); font-size: .88rem; }
+@media (max-width: 899px) {
+  .dialog-controls { position: relative; min-height: 43px; padding: 2px 10px 0; }
+  .dialog-controls::before { content: ''; position: absolute; top: 5px; left: 50%; width: 29px; height: 3px; border-radius: 9px; background: var(--border); transform: translateX(-50%); }
+  .dialog-controls > span { padding-top: 5px; }
+  .dialog-content { padding-top: 13px; }
+}
+@media (min-width: 900px) {
+  .details-dialog[data-slot] { inset: 0 0 0 auto; margin: 0; width: min(580px, 100%); height: 100dvh; max-height: 100dvh; border-radius: 12px 0 0 12px; }
+  .details-dialog[data-slot] .dialog-inner { height: 100%; max-height: 100%; }
+  .slot-header { padding-inline: 23px; }
+}

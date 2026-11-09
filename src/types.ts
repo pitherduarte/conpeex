@@ -7,6 +7,7 @@ export interface Presentation {
   startTime: string | null
   endTime: string | null
   knowledgeArea: string | null
+  inferredArea?: boolean
   modality: string | null
   session: string | null
   table: string | null

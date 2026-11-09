@@ -6,23 +6,20 @@ import type { FilterKey, Filters as FilterState } from '../calendar'
 import { displayText } from '../presentationText'
 import type { Presentation } from '../types'
 import { AcronymHelp } from './AcronymHelp'
+import { areas } from '../areas'
+import { AreaLabel } from './AreaLabel'
 import './filters.css'
 
 const labels: Record<FilterKey, string> = {
   knowledgeArea: 'Área', modality: 'Modalidade', session: 'Sessão', table: 'Mesa / TV', date: 'Dia',
 }
-const areas = [
-  'Ciências Exatas e da Terra', 'Engenharias', 'Ciências Biológicas', 'Ciências da Saúde',
-  'Ciências Agrárias', 'Ciências Sociais Aplicadas', 'Ciências Humanas', 'Linguística, Letras e Artes',
-  'Multidisciplinar',
-]
 const collator = new Intl.Collator('pt-BR', { numeric: true })
 
 export function makeOptions(items: Presentation[], days: readonly string[] = []) {
   return Object.fromEntries(filterKeys.map(key => {
     const values = new Set(items.map(item => filterValue(item, key)))
     const options = [...values].filter(value => value !== unknown).sort(collator.compare)
-    const ordered = key === 'knowledgeArea' ? [...new Set([...areas, ...options])] : options
+    const ordered = key === 'knowledgeArea' ? [...new Set([...areas.filter(area => area.tone !== 'neutra').map(area => area.label), ...options])] : options
     if (key === 'date' && days.length) return [key, [...days]]
     if (values.has(unknown) || key === 'knowledgeArea') ordered.push(unknown)
     return [key, ordered]
@@ -57,21 +54,29 @@ interface PickerProps {
 }
 
 function FilterPicker({ field, values, options, onChange, onClose }: PickerProps) {
-  const panel = useRef<HTMLDivElement>(null)
+  const panel = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const [query, setQuery] = useState('')
+  const [draft, setDraft] = useState(values)
   const isMultiple = field !== 'date'
-  const showSearch = options.length >= 10
   const term = normalize(query.trim())
   const displayed = options
     .map(value => ({ value, label: optionLabel(field, value) }))
     .filter(({ label }) => normalize(label).includes(term))
 
   useEffect(() => {
-    heading.current?.focus()
+    const dialog = panel.current
+    dialog?.showModal()
+    heading.current?.focus({ preventScroll: true })
+    return () => dialog?.close()
   }, [])
 
-  function handleKeys(event: KeyboardEvent<HTMLDivElement>) {
+  function dismiss() {
+    panel.current?.close()
+    onClose()
+  }
+
+  function handleKeys(event: KeyboardEvent<HTMLDialogElement>) {
     const target = event.target as HTMLElement
     const fromSearch = target.matches('[type="search"]')
     const fromOption = target.hasAttribute('data-filter-option')
@@ -93,31 +98,30 @@ function FilterPicker({ field, values, options, onChange, onClose }: PickerProps
     }
   }
 
-  return <div ref={panel} className="filter-dropdown" id={`filter-options-${field}`} role="group"
-    aria-labelledby={`filter-title-${field}`} onKeyDown={handleKeys}>
+  return <dialog ref={panel} className="filter-dialog" id={`filter-options-${field}`}
+    aria-labelledby={`filter-title-${field}`} onKeyDown={handleKeys}
+    onCancel={event => { event.preventDefault(); dismiss() }}
+    onClick={event => { if (event.target === event.currentTarget) dismiss() }}>
+    <div className="filter-dropdown">
     <div className="filter-dropdown-head">
       <h3 id={`filter-title-${field}`} ref={heading} tabIndex={-1}>{labels[field]}</h3>
-      {values.length > 0 && <button type="button" className="filter-action" onClick={() => {
-        onChange([])
-        if (isMultiple) heading.current?.focus()
-        else onClose()
-      }}>Limpar seleção</button>}
+      <span className="filter-selection">{draft.length} {draft.length === 1 ? 'selecionada' : 'selecionadas'}</span>
     </div>
-    {showSearch && <label className="filter-search">
+    <label className="filter-search">
       <Search size={15} aria-hidden="true" />
       <input type="search" aria-label="Buscar opções" placeholder="Buscar opções" value={query} onChange={event => setQuery(event.target.value)} />
-    </label>}
+    </label>
     <div className="filter-choices">
       {displayed.length === 0 && <p className="filter-no-options" role="status">Nenhuma opção encontrada.</p>}
       {displayed.map(({ value, label }) => {
-        const checked = values.includes(value)
+        const checked = draft.includes(value)
         return <div key={value} className={checked ? 'filter-choice is-selected' : 'filter-choice'}>
           {isMultiple ? <label className="filter-choice-label">
             <input type="checkbox" data-filter-option checked={checked}
-              onChange={() => onChange(checked ? values.filter(selected => selected !== value) : [...values, value])} />
-            <span>{label}</span>
+              onChange={() => setDraft(checked ? draft.filter(selected => selected !== value) : [...draft, value])} />
+            {field === 'knowledgeArea' ? <AreaLabel label={label} /> : <span>{label}</span>}
           </label> : <button type="button" className="filter-choice-label" data-filter-option aria-pressed={checked}
-            onClick={() => { onChange([value]); onClose() }}>
+            onClick={() => { onChange([value]); dismiss() }}>
             <span>{label}</span>
             {checked && <Check size={16} aria-hidden="true" />}
           </button>}
@@ -125,10 +129,14 @@ function FilterPicker({ field, values, options, onChange, onClose }: PickerProps
         </div>
       })}
     </div>
-    {isMultiple && <div className="filter-dropdown-footer">
-      <button type="button" className="filter-action filter-done" onClick={onClose}>Concluir</button>
-    </div>}
-  </div>
+    <div className="filter-dropdown-footer">
+      <button type="button" className="filter-action" disabled={!draft.length} onClick={() => setDraft([])}>Limpar seleção</button>
+      <button type="button" className="filter-action filter-done" onClick={() => { onChange(draft); dismiss() }}>
+        <span className="apply-desktop">Concluir</span><span className="apply-mobile">Aplicar</span>
+      </button>
+    </div>
+    </div>
+  </dialog>
 }
 
 interface Props {
@@ -141,38 +149,14 @@ interface Props {
 
 export function Filters({ filters, options, onFilter, onClear, canClear }: Props) {
   const [active, setActive] = useState<FilterKey | null>(null)
-  const bar = useRef<HTMLDivElement>(null)
   const triggers = useRef<Partial<Record<FilterKey, HTMLButtonElement>>>({})
-
-  useEffect(() => {
-    if (!active) return
-    const control = triggers.current[active]?.parentElement
-
-    function dismissOutside(event: Event) {
-      if (!control?.contains(event.target as Node)) setActive(null)
-    }
-    document.addEventListener('pointerdown', dismissOutside)
-    document.addEventListener('focusin', dismissOutside)
-    return () => {
-      document.removeEventListener('pointerdown', dismissOutside)
-      document.removeEventListener('focusin', dismissOutside)
-    }
-  }, [active])
 
   function closePicker() {
     if (active) triggers.current[active]?.focus()
     setActive(null)
   }
 
-  function handleEscape(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key !== 'Escape' || !active) return
-    if (bar.current?.querySelector('[data-acronym-open]')) return
-    event.stopPropagation()
-    event.preventDefault()
-    closePicker()
-  }
-
-  return <div ref={bar} className="filter-bar" role="group" aria-label="Filtros da programação" onKeyDown={handleEscape}>
+  return <div className="filter-bar" role="group" aria-label="Filtros da programação">
     <span className="filter-label"><SlidersHorizontal size={16} aria-hidden="true" /> Filtros</span>
     <div className="filter-options">
       {filterKeys.map(key => {
@@ -202,5 +186,15 @@ export function Filters({ filters, options, onFilter, onClear, canClear }: Props
         onClear()
       }}><X size={15} aria-hidden="true" /> Limpar tudo</button>}
     </div>
+    {filterKeys.some(key => filters[key]?.length) && <ul className="filter-chips" aria-label="Filtros ativos">
+      {filterKeys.flatMap(key => (filters[key] ?? []).map(value => <li key={key + value}>
+        <button type="button" onClick={() => {
+          triggers.current[key]?.focus()
+          onFilter(key, (filters[key] ?? []).filter(option => option !== value))
+        }} aria-label={`Remover filtro ${optionLabel(key, value)}`}>
+          {optionLabel(key, value)} <X size={14} aria-hidden="true" />
+        </button>
+      </li>))}
+    </ul>}
   </div>
 }

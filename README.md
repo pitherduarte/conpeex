@@ -8,6 +8,8 @@ A agenda cobre os cinco dias da edição, de 9 a 13 de novembro de 2026. No comp
 
 O tema acompanha a preferência do sistema até que o visitante faça uma escolha no cabeçalho. A busca e os filtros podem ser combinados. A camada de apresentação ajusta a capitalização dos títulos e autores sem alterar os registros. As definições verificadas e as pendências estão no [glossário](docs/glossary.md).
 
+A agenda exibe a hora de Brasília e posiciona o marcador de agora no dia e período visíveis. O zoom da grade aceita pinça no celular, botões e as teclas `+`, `-` e `0` com a grade em foco. A [revisão editorial das áreas](docs/area-review.md) documenta as inferências e o comando para reproduzi-las.
+
 ## Desenvolvimento
 
 Requisitos: Node.js 24 e npm.

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Clock3 } from 'lucide-react'
+import { withReviewedArea } from './areas'
+import { useEventClock } from './components/eventClock'
 import event from './data/event.json'
 import dataUrl from './data/presentations.json?url&no-inline'
 import { eventDates, filterPresentations, indexPresentations, weekLabel } from './calendar'
@@ -26,6 +27,7 @@ function Agenda({ items }: { items: Presentation[] }) {
   const [filters, setFilters] = useState<FilterState>({})
   const [selected, setSelected] = useState(initialDay)
   const [period, setPeriod] = useState<Period>('all')
+  const now = useEventClock()
   const [detail, setDetail] = useState<Presentation | null>(null)
   const [slot, setSlot] = useState<Slot | null>(null)
 
@@ -68,17 +70,24 @@ function Agenda({ items }: { items: Presentation[] }) {
     <section id="agenda" className="agenda" aria-labelledby="calendar-title">
       <div className="agenda-header">
         <h2 id="calendar-title">Programação das apresentações</h2>
-        <span className="timezone"><Clock3 size={15} aria-hidden="true" /> {event.timeZone}</span>
       </div>
       <Calendar days={days} selected={selected} onDay={date => {
         if (filters.date) changeFilter('date', [date])
         else setSelected(date)
-      }} period={period} onPeriod={setPeriod} items={matching} onOpen={setDetail}
+      }} period={period} onPeriod={setPeriod} items={matching} onOpen={setDetail} now={now}
         onSlot={(date, time, group) => setSlot({ date, time, items: group })}
         hasFilters={hasFilters} onClear={clear}>
-        <div className="agenda-meta" role="status">
-          <strong>{matching.length.toLocaleString('pt-BR')}</strong> {matching.length === 1 ? 'apresentação encontrada' : 'apresentações encontradas'}
-          <span className="day-count"> · {dayCount.toLocaleString('pt-BR')} neste dia</span>
+        <div className="calendar-context">
+          <div className="live-clock">
+            <span>Horário de Brasília</span>
+            <time dateTime={now.instant}>
+              <span className="clock-full">{now.full}</span><span className="clock-compact">{now.compact}</span> · <strong>{now.time}</strong>
+            </time>
+          </div>
+          <div className="agenda-meta" role="status">
+            <strong>{matching.length.toLocaleString('pt-BR')}</strong> {matching.length === 1 ? 'apresentação encontrada' : 'apresentações encontradas'}
+            <span className="day-count"> · {dayCount.toLocaleString('pt-BR')} neste dia</span>
+          </div>
         </div>
       </Calendar>
     </section>
@@ -98,7 +107,7 @@ export function App() {
         const response = await fetch(dataUrl, { signal: controller.signal })
         if (!response.ok) throw new Error('Falha ao carregar a programação')
         const records: Presentation[] = await response.json()
-        const eventRecords = records.filter(item => !item.date || eventDaySet.has(item.date))
+        const eventRecords = records.filter(item => !item.date || eventDaySet.has(item.date)).map(withReviewedArea)
         eventRecords.sort((a, b) => (a.date ?? 'Z').localeCompare(b.date ?? 'Z') ||
           (a.startTime ?? 'Z').localeCompare(b.startTime ?? 'Z') || collator.compare(a.table ?? '', b.table ?? ''))
         if (!controller.signal.aborted) setItems(eventRecords)
@@ -118,10 +127,7 @@ export function App() {
           <span className="brand-mark" aria-hidden="true" />
           <span><strong>{event.name}</strong><small>{event.edition} · {event.year}</small></span>
         </a>
-        <div className="header-actions">
-          <span className="institution"><span className="institution-full">{event.institution}</span><span className="institution-short">{event.institutionShort}</span></span>
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </div>
     </header>
     <main className="shell">
